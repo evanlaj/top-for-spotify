@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Stats for Spotify | Your stats</title>
+  </head>
+  <body>
+    <header>
+      <div id='header-title'>Votre top des 6 derniers mois</div>
+      <div id='header-buttons'>
+        <div id="artists" class="type toggle-button" activeSelection>Artistes</div>
+        <div id="tracks" class="type toggle-button">Musiques</div>
+        <div class="separator"></div>
+        <div id="short_term" class="range toggle-button">Dernier mois</div>
+        <div id="medium_term" class="range toggle-button" activeSelection>6 derniers mois</div>
+        <div id="long_term" class="range toggle-button">Depuis toujours</div>
+      </div>
+    </header>
+
+    <div id="info-list"></div>
+
+    <script src='./js/app.js'></script>
+  </body>
+</html>
