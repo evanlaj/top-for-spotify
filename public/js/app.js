@@ -1,7 +1,4 @@
-//These 3 lines allow us to get the username of the user from the URL parameters
-const urlSearchParams = new URLSearchParams(window.location.search);
-const params = Object.fromEntries(urlSearchParams.entries());
-const access_token = params.access_token;
+const access_token = getCookie("access_token");
 
 const headerTitle = document.getElementById('header-title');
 const infoList = document.getElementById('info-list');
@@ -12,9 +9,12 @@ const headerFromRange = {
   long_term: 'de tous les temps'
 }
 
-var interval = null;
+var intervalHeader = null;
+var intervalList = null;
 var range = null;
-var pos = null;
+var posHeaderCursor = 0;
+var posCardList = 0;
+var listInfos = null;
 
 function initButtons() {
   buttons = document.getElementsByClassName("toggle-button");
@@ -50,8 +50,6 @@ function getInfos() {
 
   let req = new XMLHttpRequest();
 
-  console.log("getting the infos !!!!!! type : " + type + ", range : " + range + " !!!!!!!!!!");
-
   req.onreadystatechange = function() {
       if (this.readyState == 4 && this.status == 200) {
         let response = JSON.parse(req.responseText);
@@ -67,25 +65,44 @@ function getInfos() {
 function displayInfos(infos, type) {
   infoList.innerHTML = '';
 
-  if(type == 'artists') displayArtists(infos);
-  if(type == 'tracks') displayTracks(infos);
+  listInfos = infos.items;
+
+  posCardList = 0;
+
+  if(type == 'artists') intervalList = setInterval(displayArtists, 30);
+  if(type == 'tracks') intervalList = setInterval(displayTracks, 30);
 }
 
-function displayArtists(infos) {
-  for(info of infos.items) {
-    console.log(info);
-    let infoCard = createInfoCard(info.images[2].url, info.name, '', 0, info.uri);
-    infoList.appendChild(infoCard);
+function displayArtists() {
+
+  if(posCardList == listInfos.length) {
+    clearInterval(intervalList);
+    return;
   }
+
+  info = listInfos[posCardList];
+  console.log(info);
+
+  let infoCard = createInfoCard(info.images[2].url, info.name, '', posCardList, info.uri);
+  infoList.appendChild(infoCard);
+
+  posCardList++;
 }
 
-function displayTracks(infos) {
-  for(info of infos.items) {
-    console.log(info);
-    let infoCard = createInfoCard(info.album.images[1].url, info.name, '', 0, info.uri);
-    console.log(info.uri);
-    infoList.appendChild(infoCard);
+function displayTracks() {
+
+  if(posCardList == listInfos.length) {
+    clearInterval(intervalList);
+    return;
   }
+
+  info = listInfos[posCardList];
+  console.log(info);
+
+  let infoCard = createInfoCard(info.album.images[1].url, info.name, '', posCardList, info.uri);
+  infoList.appendChild(infoCard);
+
+  posCardList++;
 }
 
 function createInfoCard(imgUrl, title, description, position, redirect) {
@@ -113,8 +130,8 @@ function updateHeader() {
 
   headerTitle.setAttribute('updating', '');
 
-  clearInterval(interval);
-  interval = setInterval(eraseTitle, 50);
+  clearInterval(intervalHeader);
+  intervalHeader = setInterval(eraseTitle, 40);
 }
 
 function eraseTitle() {
@@ -122,11 +139,11 @@ function eraseTitle() {
   newHeader = headerTitle.innerHTML;
 
   if(newHeader == "Votre top ") {
-    pos = 0;
-    clearInterval(interval);
+    posHeaderCursor = 0;
+    clearInterval(intervalHeader);
 
     setTimeout(function() {
-      interval = setInterval(typeNewTitle, 70);
+      intervalHeader = setInterval(typeNewTitle, 60);
     }, 200);
 
     return;
@@ -139,20 +156,27 @@ function eraseTitle() {
 
 function typeNewTitle() {
 
-  if(pos == headerFromRange[range].length) {
+  if(posHeaderCursor == headerFromRange[range].length) {
     headerTitle.removeAttribute('updating');
-    clearInterval(interval);
+    clearInterval(intervalHeader);
 
     return;
   }
 
   newHeader = headerTitle.innerHTML;
-  newHeader = newHeader + headerFromRange[range].charAt(pos);
+  newHeader = newHeader + headerFromRange[range].charAt(posHeaderCursor);
 
   headerTitle.innerHTML = newHeader;
 
-  pos++;
+  posHeaderCursor++;
 }
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
 
 initButtons();
 getInfos();

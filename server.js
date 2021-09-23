@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const querystring = require('querystring');
+const cookieParser = require('cookie-parser');
 const request = require("request");
 const fs = require('fs');
 
@@ -24,7 +25,8 @@ try {
 const app = express();
 const server = http.createServer(app);
 
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
 
 app.get('/login', function(req, res) {
   // your application requests authorization
@@ -66,8 +68,8 @@ app.get('/callback', function(req, res) {
         json: true
       };
 
-      // we can also pass the token to the browser to make requests from there
-      res.redirect('/top.html?' + querystring.stringify({ access_token: access_token }));
+      res.cookie('access_token', access_token);
+      res.redirect('/top.html');
     }
     else res.redirect('/#' + querystring.stringify({ error: 'invalid_token' }));
   });
