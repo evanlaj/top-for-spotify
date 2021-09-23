@@ -25,7 +25,10 @@ try {
 const app = express();
 const server = http.createServer(app);
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  extensions: ['html'],
+}));
+
 app.use(cookieParser());
 
 app.get('/login', function(req, res) {
@@ -69,7 +72,7 @@ app.get('/callback', function(req, res) {
       };
 
       res.cookie('access_token', access_token);
-      res.redirect('/top.html');
+      res.redirect('/top');
     }
     else res.redirect('/#' + querystring.stringify({ error: 'invalid_token' }));
   });
